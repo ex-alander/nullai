@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EDA: US Accidents 2016–2023</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      /* ДОПОЛНИТЕЛЬНЫЕ СТИЛИ ДЛЯ КАРТЫ */
+      .map-container {
+        position: relative;
+        padding-bottom: 56.25%;
+        height: 0;
+        overflow: hidden;
+        border-radius: 4px;
+        border: 1px solid rgba(184, 148, 76, 0.2);
+        background: #0d0a08;
+      }
+      .map-container iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+      }
+      .img-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+      }
+      @media (max-width: 768px) {
+        .img-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .card .img-placeholder {
+        margin: 0;
+      }
+      .card .img-placeholder img {
+        width: 100%;
+        border-radius: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <!-- ОБЛОЖКА -->
+      <header class="cover">
+        <div class="cover__emblem"></div>
+        <h1 class="cover__title">EDA: US Accidents 2016–2023</h1>
+        <p class="cover__subtitle">
+          Анализ факторов тяжести дорожно-транспортных происшествий
+        </p>
+        <div class="cover__meta">
+          <span>Александр Чухлов</span>
+          <span>29 августа 2026</span>
+          <span
+            >Нулевой модуль магистратуры &laquo;Искусственный
+            интеллект&raquo;</span
+          >
+        </div>
+      </header>
+
+      <!-- 2. ВВЕДЕНИЕ -->
+      <section class="section">
+        <h2 class="section__title">2. Введение</h2>
+
+        <div class="card">
+          <h3 class="card__title">2.1. Цель исследования</h3>
+          <p>
+            Выявить ключевые условия, при которых тяжесть ДТП (Severity)
+            достигает максимальных значений, и определить региональные и
+            временные паттерны аварийности.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3 class="card__title">2.2. Задачи</h3>
+          <ul>
+            <li>
+              <strong>a.</strong> Оценить качество данных и выявить системные
+              ошибки сбора.
+            </li>
+            <li>
+              <strong>b.</strong> Определить региональные «горячие точки» с
+              максимальной Severity.
+            </li>
+            <li>
+              <strong>c.</strong> Проанализировать временные паттерны
+              аварийности.
+            </li>
+            <li>
+              <strong>d.</strong> Исследовать влияние погодных факторов на
+              тяжесть инцидентов.
+            </li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3 class="card__title">2.3. Описание датасета</h3>
+          <ul>
+            <li>
+              <strong>Источник:</strong> Kaggle — US Accidents (2016–2023).
+            </li>
+            <li><strong>Объем:</strong> 7.7 млн записей, 46 признаков.</li>
+            <li><strong>Период:</strong> 2016 – 2023.</li>
+            <li>
+              <strong>Ключевые признаки:</strong> Severity, Start_Time,
+              Start_Lat/Lng, Weather_Condition, Temperature(F), Humidity(%).
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 3. КАЧЕСТВО ДАННЫХ -->
+      <section class="section">
+        <h2 class="section__title">3. Качество данных</h2>
+
+        <div class="card">
+          <h3 class="card__title">3.1. Структура данных</h3>
+          <ul>
+            <li>
+              <strong>Типы признаков:</strong> 19 строковых, 13 булевых, 12
+              числовых.
+            </li>
+            <li><strong>Размерность:</strong> 7,728,394 × 46.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3 class="card__title">3.2. Пропуски</h3>
+          <ul>
+            <li>
+              <strong>End_Lat / End_Lng:</strong> 44% пропусков — удалены.
+            </li>
+            <li>
+              <strong>Precipitation(in):</strong> 28.5% пропусков — удалены.
+            </li>
+            <li><strong>Wind_Chill(F):</strong> 25.9% пропусков — удалены.</li>
+            <li>
+              <strong>Weather_Condition:</strong> 2.24% пропусков — заполнены
+              «Unknown».
+            </li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3 class="card__title">3.3. Дубликаты</h3>
+          <p>Дубликаты строк отсутствуют (0%).</p>
+        </div>
+
+        <div class="card">
+          <h3 class="card__title">3.4. Итог очистки</h3>
+          <ul>
+            <li><strong>Потеряно записей:</strong> 0.</li>
+            <li>
+              <strong>Итоговый размер:</strong> 7,728,394 × 53 (добавлены
+              признаки: Year, Month, Hour, Is_Weekend, Is_Rush_Hour).
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 4. ВРЕМЕННЫЕ ПАТТЕРНЫ -->
+      <section class="section">
+        <h2 class="section__title">4. Временные паттерны</h2>
+
+        <div class="card">
+          <h3 class="card__title">4.1. Аварии по годам</h3>
+          <p>
+            Динамика: рост с 2016 до 2020, спад в 2020 (COVID-19), пик в 2022.
+          </p>
+          <div class="img-placeholder">
+            <img src="docs/plot_years.png" alt="График аварий по годам" />
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="card__title">4.2. Аварии по месяцам</h3>
+          <p>Пик: летние месяцы (июнь–август). Спад: февраль–март.</p>
+          <div class="img-placeholder">
+            <img src="docs/plot_months.png" alt="График аварий по месяцам" />
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="card__title">4.3. Аварии по часам</h3>
+          <ul>
+            <li>
+              <strong>Утренний пик:</strong> 7–9 утра (~48,000 ДТП в час).
+            </li>
+            <li>
+              <strong>Вечерний пик:</strong> 5–7 вечера (~33,000 ДТП в час).
+            </li>
+            <li>
+              <strong>Средняя тяжесть:</strong> вне пика — 2.21, в пик — 2.21
+              (разницы нет).
+            </li>
+          </ul>
+          <div class="img-placeholder">
+            <img src="docs/plot_hours.png" alt="График аварий по часам" />
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="card__title">4.4. Будни vs Выходные</h3>
+          <ul>
+            <li><strong>Будни:</strong> 71.5%.</li>
+            <li><strong>Выходные:</strong> 28.5%.</li>
+          </ul>
+          <div class="img-placeholder">
+            <img
+              src="docs/plot_weekend.png"
+              alt="Диаграмма будни vs выходные"
+            />
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. ГЕОГРАФИЧЕСКИЙ АНАЛИЗ -->
+      <section class="section">
+        <h2 class="section__title">5. Географический анализ</h2>
+
+        <div class="card">
+          <h3 class="card__title">5.1. Интерактивная карта плотности ДТП</h3>
+          <ul>
+            <li><strong>Метод:</strong> Folium HeatMap.</li>
+            <li><strong>Сэмпл:</strong> 500,000 записей.</li>
+            <li>
+              <strong>Результат:</strong> визуализация горячих точек
+              (Калифорния, Техас, Флорида).
+            </li>
+          </ul>
+          <div class="map-container">
+            <iframe src="docs/accident_map.html" title="Тепловая карта ДТП"></iframe>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="card__title">5.2. Топ-штаты по тяжести (Severity)</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Штат</th>
+                <th>Средняя Severity</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>GA</td>
+                <td>2.51</td>
+              </tr>
+              <tr>
+                <td>WI</td>
+                <td>2.47</td>
+              </tr>
+              <tr>
+                <td>RI</td>
+                <td>2.46</td>
+              </tr>
+              <tr>
+                <td>KY</td>
+                <td>2.45</td>
+              </tr>
+              <tr>
+                <td>CO</td>
+                <td>2.44</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 6. ПОГОДА И SEVERITY -->
+      <section class="section">
+        <h2 class="section__title">6. Погода и Severity</h2>
+
+        <div class="card">
+          <h3 class="card__title">6.1. Распределение Severity</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Уровень</th>
+                <th>Доля</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>0.1%</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>58.3%</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>37.8%</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>3.8%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <h3 class="card__title">6.2. Severity vs Weather Condition</h3>
+          <ul>
+            <li><strong>Лидер:</strong> «Overcast» — 2.39.</li>
+            <li>
+              <strong>«Unknown»:</strong> 2.46 (выше, чем у дождя и снега).
+            </li>
+          </ul>
+          <div class="img-placeholder">
+            <img
+              src="docs/plot_weather.png"
+              alt="Severity по погодным условиям"
+            />
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="card__title">6.3. Severity vs Temperature</h3>
+          <p>Разброс температур по уровням Severity.</p>
+          <div class="img-placeholder">
+            <img
+              src="docs/plot_temp_boxplot.png"
+              alt="Boxplot Severity vs Temperature"
+            />
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="card__title">6.4. Корреляции числовых признаков</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Признак</th>
+                <th>Корреляция с Severity</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Humidity(%)</td>
+                <td>0.04</td>
+              </tr>
+              <tr>
+                <td>Wind_Speed(mph)</td>
+                <td>0.03</td>
+              </tr>
+              <tr>
+                <td>Precipitation(in)</td>
+                <td>0.02</td>
+              </tr>
+              <tr>
+                <td>Temperature(F)</td>
+                <td>-0.00</td>
+              </tr>
+              <tr>
+                <td>Visibility(mi)</td>
+                <td>-0.01</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            <strong>Вывод:</strong> корреляции крайне слабы — тяжесть ДТП не
+            определяется изолированными погодными факторами.
+          </p>
+          <div class="img-placeholder">
+            <img
+              src="docs/plot_corr_heatmap.png"
+              alt="Тепловая карта корреляций"
+            />
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. ВЫВОДЫ -->
+      <section class="section">
+        <h2 class="section__title">7. Выводы</h2>
+
+        <div class="card">
+          <h3 class="card__title">7.1. Природа уязвимости</h3>
+          <ul>
+            <li>
+              <strong>Время:</strong> пики в часы пик (7–9, 17–19), но
+              максимальная тяжесть — вечером (20:00 — 2.51).
+            </li>
+            <li>
+              <strong>География:</strong> топ-3 штата — MO (2.85), IN (2.84), RI
+              (2.71).
+            </li>
+            <li>
+              <strong>Погода:</strong> «Unknown» дает Severity выше, чем
+              дождь/снег — пропуски маскируют причины.
+            </li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3 class="card__title">7.2. Дефекты данных</h3>
+          <ul>
+            <li>Удалены 4 колонки с >70% пропусков.</li>
+            <li>Weather_Condition: 2% заполнены «Unknown».</li>
+            <li>Корреляции погодных признаков с Severity — ниже 0.05.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3 class="card__title">7.3. Ключевые условия ДТП</h3>
+          <ul>
+            <li>Будни — 71.5% аварий.</li>
+            <li>Два пика — утренний и вечерний.</li>
+            <li>Severity 2 — 58.3%, Severity 3 — 37.8%.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3 class="card__title">7.4. Дальнейшие действия</h3>
+          <ul>
+            <li>Восстановить данные об осадках и ветре.</li>
+            <li>Интегрировать данные о трафике и освещении.</li>
+            <li>Построить предиктивную модель Severity.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3 class="card__title">7.5. Итог</h3>
+          <p>
+            Датасет мощный, но с пробелами. Сила — в объеме. Слабость — в
+            погодных данных и отсутствии критических факторов.
+          </p>
+        </div>
+      </section>
+
+      <!-- ПОДВАЛ -->
+      <footer class="footer">
+        <p>
+          &copy; 2026 Александр Чухлов &bull; Нулевой модуль магистратуры
+          &laquo;Искусственный интеллект&raquo;
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>

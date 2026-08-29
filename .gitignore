@@ -1,0 +1,56 @@
+# Виртуальные окружения
+.venv/
+eda/
+venv/
+env/
+.env/
+
+# Данные (тяжёлые файлы)
+*.csv
+*.zip
+*.parquet
+*.pkl
+*.h5
+*.pb
+*.joblib
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+.ipynb_*
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.log
+
+# Редакторы
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Другое
+*.tmp
+*.temp
+*.bak
+*.old
+
+# HTML-отчёт (генерируется из ipynb)
+Homework1/report.html
+
+# Папка docs если пустая
+Homework1/docs/
